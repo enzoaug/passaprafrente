@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Passa pra Frente</title>
+
+    <!-- Bootstrap -->
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/owl.carousel.css" rel="stylesheet">
+    <link href="css/font-awesome.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Lobster|Monda" rel="stylesheet">
+    <link href="css/estilo.css" rel="stylesheet">
+    <style>
+      body, p {font-family: 'Monda', sans-serif;}
+      h1, h2, h3, h4, h5, h6 {font-family: 'Bree Serif', serif;}
+      .cor{ padding: 32px 20px; margin: 10px 20px; font-weight: bold; width: 65px;}/*Descartar*/
+      .bg-warning{background-color: #fa7047 ;}
+      .bg-danger{background-color: #e12f48;}
+      .bg-success{background-color: #a9b664;}
+      .bg-extra{background-color: #efc93a;}
+      .bg-info{background-color: #5a96af;}
+      .bg-primary{background-color: #283b3f;}
+      .lil-height{padding: 0 20px; margin: 0 20px}/*Descartar*/
+      .btn{ transition: all 0.3s; border-width: 2px; font-weight: bold;}
+      .btn-default { color: #5a96af; background: transparent; border-color:#5a96af;}
+      .btn-default:hover, .btn-default:focus, .btn-default:active {color: #fff;background: #5a96af; border-color:#5a96af;}
+      .btn-primary{ color: #283b3f; background: transparent; border-color:#283b3f; }
+      .btn-primary:hover, .btn-primary:focus, .btn-primary:active {color: #fff;background: #283b3f; border-color:#283b3f;}
+      .btn-success{ color: #a9b664; background: transparent; border-color:#a9b664; }
+      .btn-success:hover, .btn-success:focus, .btn-success:active {color: #fff;background: #a9b664; border-color:#a9b664;}
+      .btn-warning { color: #fa7047; background: transparent; border-color:#fa7047; }
+      .btn-warning:hover, .btn-warning:focus, .btn-warning:active {color: #fff;background: #fa7047; border-color:#fa7047;}
+      .btn-danger {  color: #e12f48; background: transparent; border-color:#e12f48;  }
+      .btn-danger:hover, .btn-danger:focus, .btn-danger:active {color: #fff;background: #e12f48; border-color:#e12f48;}
+      .btn-link {color: #283b3f;}
+      /*.form-control { border-width: 2px; border-color: transparent; border-bottom-color: #283b3f; -webkit-box-shadow: none; box-shadow: none;}
+      .form-control:focus { border-color: #283b3f; outline: 0; -webkit-box-shadow: none; box-shadow: none; }*/
+
+      .input-group { border: 2px solid transparent; border-bottom-color: #283b3f; }
+      .input-group .form-control { border-width: 2px; border-color: transparent;  -webkit-box-shadow: none; box-shadow: none; }
+      .input-group .btn { border-color: transparent; background: transparent; color:  #5a96af}
+      .input-group .btn:active, .input-group .btn:focus, .input-group .btn:hover { color: #283b3f; outline: 0;}
+
+      .form-group .form-control { border: 2px solid transparent; border-bottom-color: #283b3f; -webkit-box-shadow: none; box-shadow: none; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>A Marca</h1>
+      <p>A marca consiste em um logotipo que utiliza a fonte Lobster. Pode ser usada sob as cores utilizadas no projeto e para uso negativo deve ser utilizada com a cor branca.</p>
+      
+      <!--fonte padrão-->
+      <h3>A Marca padrão</h3>
+      <span style="color:#283b3f; font-family: Lobster; font-size: 80px;">Passa pra frente!</span>
+      
+      <h3>Cores secundárias</h3>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster;color:#5a96af; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster;color:#a9b664; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster;color:#fa7047; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster;color:#e12f48; padding: 15px; margin:15px;">Passa pra Frente!</span>
+
+      <h3>Marca sobre fundo colorido</h3>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster; color:#fff; background-color:#5a96af; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster; color:#fff;background-color:#a9b664; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster; color:#fff;background-color:#fa7047; padding: 15px; margin:15px;">Passa pra Frente!</span>
+      <span style="display: inline-block; font-size:30px;font-family: Lobster; color:#fff;background-color:#e12f48; padding: 15px; margin:15px;">Passa pra Frente!</span>
+
+
+
+      <h1>Cores</h1>
+      <ul class="list-inline">
+        <li class="cor bg-warning"></li>
+        <li class="cor bg-danger"></li>
+        <li class="cor bg-success"></li>
+        <li class="cor bg-extra"></li>
+        <li class="cor bg-info"></li>
+        <li class="cor bg-primary"></li>
+      </ul>
+      <ul class="list-inline">
+        <li class="cor lil-height">#fa7047 <small>R:250 G:110 B:70</small></li>
+        <li class="cor lil-height">#e12f48 <small>R:225 G:45 B:70</small></li>
+        <li class="cor lil-height">#a9b664 <small>R:170 G:180 B:100</small></li>
+        <li class="cor lil-height">#efc93a <small>R:240 G:200 B:60</small></li>
+        <li class="cor lil-height">#5a96af <small>R:90 G:150 B:175</small></li>
+        <li class="cor lil-height">#283b3f <small>R:40 G:60 B:65</small></li>
+      </ul>
+      <p>As cores foram baseadas no levantamento de dados imagéticos do público alvo, que culminou no moodboard.</p>
+      <hr/>
+      <h1>Tipografia</h1>
+      <h2>Bree Serif</h2>
+      <p>Esta fonte será utilizada em títulos e subtítulos nas páginas do aplicativo.</p>
+      <blockquote style="font-size:20px;font-family: 'Bree Serif', serif;">Jane quer LP, fax, CD, giz, TV e bom whisky</blockquote>
+      <h2>Monda</h2>
+      <p>Esta fonte será utilizada nos paragrafos, textos corridos e demais elementos textuais do aplicativo  </p>
+      <blockquote style="font-size:20px;">Jane quer LP, fax, CD, giz, TV e bom whisky</blockquote>
+      <hr/>
+      
+      <h1>Botões</h1>
+      <p>O Layout contempla cinco estilos de botões mais o estilo designado para os links, baseados no estilo padrão do framework Bootstrap utilizado. Os botões em estado normal são transparentes com bordas e texto coloridos. Quando sobrepassados pelo cursor, em estado de foco ou ativos o botão recebe um efeito negativo, com o fundo transparente se tornando colorido e o texto branco. Assim o botão ganha maior interatividade com o usuário, tornando-o mais evidente.</p>
+      <!-- Standard button -->
+      <button type="button" class="btn btn-default">Padrão</button>
+
+      <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+      <button type="button" class="btn btn-primary">Primario</button>
+
+      <!-- Indicates a successful or positive action -->
+      <button type="button" class="btn btn-success">Positivo</button>
+
+      <!-- Indicates caution should be taken with this action -->
+      <button type="button" class="btn btn-warning">Atenção</button>
+
+      <!-- Indicates a dangerous or potentially negative action -->
+      <button type="button" class="btn btn-danger">Negativo</button>
+
+      <!-- Deemphasize a button by making it look like a link while maintaining button behavior -->
+      <button type="button" class="btn btn-link">Link</button>
+
+      <hr/>
+      
+      <h1>Formulários</h1>
+      <form style="max-width:400px;">
+        <div class="input-group" style="margin-bottom: 15px;">
+          <label for="Buscar">Modelo de formulário de Busca</label>
+          <input type="text" class="form-control"  id="exampleBusca" placeholder="Buscar">
+          <span class="input-group-btn">
+            <button class="btn .btn-link" type="button"  style="margin-top: 20px;"><i class="fa fa-search" aria-hidden="true"></i></button>
+          </span>
+        </div>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Modelo de formulário</label>
+          <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Entrada de Texto">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">Modelo de formulário em foco</label>
+          <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Entrada de Texto" style="background-color:rgba(90,150,175,0.1)">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">Modelo de formulário em destaque </label>
+          <input type="text" class="form-control" id="exampleInputPassword1" placeholder="Entrada de Texto" style="background-color:rgba(225,45,70,0.1)">
+        </div>
+      </form>
+      <br/><br/>
+    
+    </div>
+  </body>
+</html>

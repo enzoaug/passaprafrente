@@ -1,0 +1,22 @@
+{
+  "name": "root/passaprafrente",
+  "description": "TCC (Engenharia Web) - Passaprafrente!",
+  "require": {
+    "php": ">=5.5.0",
+    "twbs/bootstrap": ">=3.0"
+  },
+  "authors": [
+    {
+      "name": "Enzo Augusto",
+      "email": "enzovaughan@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-0": {
+      "Core": "src",
+      "Application": "src",
+      "Assets": "src"
+    }
+  }
+}
