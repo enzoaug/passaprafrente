@@ -9,28 +9,36 @@
 
 namespace Core\Database;
 
+use Application\Config\Database as AppDatabase;
 use PDO;
 use Exception;
 
+/**
+ * Class Database
+ * @package Core\Database
+ */
 class Database
 {
-    private $config;
     private $pdo;
 
-    public function __construct(Array $config)
+    /**
+     * Database constructor.
+     * @throws Exception
+     * @internal param AppDatabase|array $config
+     */
+    public function __construct()
     {
-        $this->config = $config;
-        $this->conectionValidate();
+        $this->connectionValidate();
     }
 
-    public function conect()
+    public function connect()
     {
         try {
             $this->pdo = new PDO(
-                'mysql: host=' . $this->config["server"] . '; dbname=' . $this->config["database"],
-                $this->config['user'],
-                $this->config['password'],
-                $this->config['options']
+                'mysql: host=' . AppDatabase::$DB["server"] . '; dbname=' . AppDatabase::$DB["database"],
+                AppDatabase::$DB["user"],
+                AppDatabase::$DB["password"],
+                AppDatabase::$DB["options"]
             );
         } catch (\PDOException $e) {
             throw new Exception("Erro na conexão. Código: " . $e->getCode() . "Mensagem: " . $e->getMessage());
@@ -39,18 +47,18 @@ class Database
         return $this->pdo;
     }
 
-    private function conectionValidate()
+    private function connectionValidate()
     {
-        if (is_array($this->config)) {
-            if (empty($this->config["server"]))
+        if ($this->connect()) {
+            if (empty(AppDatabase::$DB["server"]))
                 throw new Exception("Servidor não informado");
-            if (empty($this->config["database"]))
+            if (empty(AppDatabase::$DB["database"]))
                 throw new Exception("Banco de Dados não informado");
-            if (empty($this->config["user"]))
+            if (empty(AppDatabase::$DB["user"]))
                 throw new Exception("Usuário não informado");
-            if (empty($this->config["password"]))
+            if (empty(AppDatabase::$DB["password"]))
                 throw new Exception("Senha não informada");
-            if (empty($this->config["options"]) && !is_array($this->config["options"]))
+            if (empty(AppDatabase::$DB["options"]) && !is_array(AppDatabase::$DB["options"]))
                 throw new Exception("Opções não informadas ou Opções não é um array");
 
             return true;

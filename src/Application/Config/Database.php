@@ -9,11 +9,18 @@
 
 namespace Application\Config;
 
+/**
+ * Class Database
+ * @package Application\Config
+ */
 class Database
 {
-    public $DB = [
+    /**
+     * @var array
+     */
+    public static $DB = [
         "server" => "localhost",
-        "database" => "imasters_phpoo",
+        "database" => "passaprafrente",
         "user" => "root",
         "password" => ";;",
         "options" => []
