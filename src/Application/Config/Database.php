@@ -19,7 +19,7 @@ class Database
      * @var array
      */
     public static $DB = [
-        "server" => "localhost",
+        "server" => "mysql.hostinger.com.br",
         "database" => "u694535801_ppf",
         "user" => "root",
         "password" => "123456;;",
