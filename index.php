@@ -1,19 +1,22 @@
 <?php
+session_start();
+
 define("ROOT", dirname(__FILE__));
 define("DS", DIRECTORY_SEPARATOR);
 
 include ROOT . DS . "vendor" . DS . "autoload.php";
 
-$database = new Core\Database\Database();
-$pdo = $database->connect();
+if (!isset($_SESSION["usuario_id"]) && empty($_SESSION["usuario_id"])) {
+    header("Location: /passaprafrente/login.php");
+}
 
-$resultado = $pdo->prepare("SELECT * FROM produtos;");
-$resultado->execute();
-$produtos = $resultado->fetchAll(PDO::FETCH_ASSOC);
+$conn = new \Core\Database\Database();
+$pdo = $conn->connect();
 
-echo "<pre>";
-var_dump($produtos);
-
+$all = new \Application\Produtos\All();
+$select = $pdo->prepare($all->getAll());
+$select->execute();
+$produtos = $select->fetchAll(PDO::FETCH_OBJ);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -43,7 +46,7 @@ var_dump($produtos);
         <div class="row">
             <div class="busca-no-site">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Buscar">
+                    <input type="text" class="form-control" id="buscar" placeholder="Buscar">
               <span class="input-group-btn">
                 <button class="btn btn-default" type="button"><i class="fa fa-search" aria-hidden="true"></i></button>
               </span>
@@ -63,8 +66,8 @@ var_dump($produtos);
                     <li class="coluna1">
                         <div class="img-me"><img src="src/Assets/images/user.jpg" alt="Imagem do Usuário"
                                                  class="img-circle"></div>
-                        <h2 class="nome-me">Jorge de Olanda</h2>
-                        <h3 class="apelido-me">Jorjão</h3>
+                        <h2 class="nome-me"><?= $_SESSION["usuario"] ?></h2>
+                        <h3 class="apelido-me"><?= utf8_encode($_SESSION["apelido"]) ?></h3>
                         <div class="seguidores-me"><span>Seguidores: </span><span class="numero">5</span></div>
                         <div class="seguindo-me"><span>Seguindo: </span><span class="numero">7</span></div>
                         <div class="itens-comp"><span>Itens compartilhados: </span><span class="numero">5</span></div>
@@ -93,118 +96,37 @@ var_dump($produtos);
 <div class="container-fluid conteudo">
     <div class="container">
         <ul class="lista">
-            <li class="listagem">
-                <div class="ident-info">
-                    <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
-                    <div class="info-name-date">
-                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                        <span class="time">Há 2 dias</span>
+            <?php foreach ($produtos as $produto) : ?>
+                <li class="listagem">
+                    <div class="ident-info">
+                        <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
+                        <div class="info-name-date">
+                            <a href="#"><h3 class="nome-compart"><?= $produto->nome ?> <?= $produto->sobrenome ?></h3>
+                            </a>
+                            <span class="time"><?= $all->parseMinute($produto->postdate) ?></span>
+                        </div>
                     </div>
-                </div>
-                <!--a href="#" class="link-produto"-->
-                <a href="javascript:void(0)" class="link-produto" data-toggle="modal" data-target="#Produto0001">
-                    <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                </a>
-                <a href="javascript:void(0)" class="info-prod" data-toggle="modal" data-target="#Produto0001">
-                    <h2 class="nome-prod">Lorem Ipsum dolor sit amet</h2>
-                    <h3 class="lil-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                        doloremque laudantium</h3>
-                </a>
-                <div class="cont-likes-comments">
-                    <div class="likes text-danger">
-                        <i class="fa fa-heart-o" aria-hidden="true"></i>
-                        <span class="like-count">3</span>
+                    <!--a href="#" class="link-produto"-->
+                    <a href="javascript:void(0)" class="link-produto" data-toggle="modal" data-target="#Produto0001">
+                        <img src="src/Assets/images/<?= $produto->imagem ?>" class="img-rounded">
+                    </a>
+                    <a href="javascript:void(0)" class="info-prod" data-toggle="modal" data-target="#Produto0001">
+                        <h2 class="nome-prod"><?= $produto->titulo ?></h2>
+                        <h3 class="lil-desc"><?= $produto->descricao ?></h3>
+                    </a>
+                    <div class="cont-likes-comments">
+                        <div class="likes text-danger">
+                            <i class="fa fa-heart-o" aria-hidden="true"></i>
+                            <span class="like-count">3</span>
+                        </div>
+                        <div class="scraps text-info">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                            <span class="scraps-count">5</span>
+                        </div>
                     </div>
-                    <div class="scraps text-info">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        <span class="scraps-count">5</span>
-                    </div>
-                </div>
-            </li>
+                </li>
+            <?php endforeach; ?>
 
-            <li class="listagem">
-                <div class="ident-info">
-                    <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
-                    <div class="info-name-date">
-                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                        <span class="time">Há 2 dias</span>
-                    </div>
-                </div>
-                <a href="javascript:void(0)" class="link-produto" data-toggle="modal" data-target="#Produto0001">
-                    <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                </a>
-                <a href="#" class="info-prod">
-                    <h2 class="nome-prod">Lorem Ipsum dolor sit amet</h2>
-                    <h3 class="lil-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                        doloremque laudantium</h3>
-                </a>
-                <div class="cont-likes-comments">
-                    <div class="likes text-danger">
-                        <i class="fa fa-heart-o" aria-hidden="true"></i>
-                        <span class="like-count">3</span>
-                    </div>
-                    <div class="scraps text-info">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        <span class="scraps-count">5</span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="listagem">
-                <div class="ident-info">
-                    <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
-                    <div class="info-name-date">
-                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                        <span class="time">Há 2 dias</span>
-                    </div>
-                </div>
-                <a href="#" class="link-produto">
-                    <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                </a>
-                <a href="#" class="info-prod">
-                    <h2 class="nome-prod">Lorem Ipsum dolor sit amet</h2>
-                    <h3 class="lil-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                        doloremque laudantium</h3>
-                </a>
-                <div class="cont-likes-comments">
-                    <div class="likes text-danger">
-                        <i class="fa fa-heart-o" aria-hidden="true"></i>
-                        <span class="like-count">3</span>
-                    </div>
-                    <div class="scraps text-info">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        <span class="scraps-count">5</span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="listagem">
-                <div class="ident-info">
-                    <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
-                    <div class="info-name-date">
-                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                        <span class="time">Há 2 dias</span>
-                    </div>
-                </div>
-                <a href="#" class="link-produto">
-                    <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                </a>
-                <a href="#" class="info-prod">
-                    <h2 class="nome-prod">Lorem Ipsum dolor sit amet</h2>
-                    <h3 class="lil-desc">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                        doloremque laudantium</h3>
-                </a>
-                <div class="cont-likes-comments">
-                    <div class="likes text-danger">
-                        <i class="fa fa-heart-o" aria-hidden="true"></i>
-                        <span class="like-count">3</span>
-                    </div>
-                    <div class="scraps text-info">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        <span class="scraps-count">5</span>
-                    </div>
-                </div>
-            </li>
             <ul class="paginacao">
                 <li class="paginacao-item primeiro"><a href="#" class="paginacao-link btn-link"><i
                             class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
@@ -458,7 +380,6 @@ var_dump($produtos);
     </div>
 </div>
 
-
 <!-- Lista de Minhas Mensagens-->
 <div class="modal fade" id="minhasMsgModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -516,84 +437,90 @@ var_dump($produtos);
 </div>
 
 <!-- Sequencia de Compartilhamento -->
-<div class="modal fade" id="compartilhandoThis" tabindex="-1" role="dialog" aria-labelledby="primeiraVisitaLabel"
-     data-backdrop="static">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div id="contTelas2">
-                    <div class="telaPv telaPv1">
-                        <h2>Obrigado por usar o<br/>Passa pra Frente</h2>
-                        <p>Compartilhando um item que não usa mais você estará ajudando alguém!</p>
-                        <h2>Vamos começar!</h2>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+<form action="src/Application/Produtos/Insert.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="estado" value="disponivel">
+    <input type="hidden" name="usuario_id" value="<?= $_SESSION["usuario_id"] ?>">
+    <input type="hidden" name="data_publicacao" value="<?= date("Y-m-d H:i:s") ?>">
+    <div class="modal fade" id="compartilhandoThis" tabindex="-1" role="dialog" aria-labelledby="primeiraVisitaLabel"
+         data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="contTelas2">
+                        <div class="telaPv telaPv1">
+                            <h2>Obrigado por usar o<br/>Passa pra Frente</h2>
+                            <p>Compartilhando um item que não usa mais você estará ajudando alguém!</p>
+                            <h2>Vamos começar!</h2>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="telaPv telaPv2">
-                        <h2>Por favor, insira até 3 imagens do item que deseja compartilhar</h2>
-                        <div class="telaPvCont imgPlaces">
+                        <div class="telaPv telaPv2">
+                            <h2>Por favor, insira até 3 imagens do item que deseja compartilhar</h2>
+                            <div class="telaPvCont imgPlaces">
 
+                            </div>
+                            <div class="telaPvCont form-group">
+                                <label for="exampleInputFile"></label>
+                                <input type="file" id="exampleInputFile" name="imagem">
+                                <p class="help-block">Clique em escolher para escolher uma imagem no seu computador.</p>
+                            </div>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
+                                <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                            </div>
                         </div>
-                        <div class="telaPvCont form-group">
-                            <label for="exampleInputFile"></label>
-                            <input type="file" id="exampleInputFile">
-                            <p class="help-block">Clique em escolher para escolher uma imagem no seu computador.</p>
+                        <div class="telaPv telaPv3">
+                            <h2>Por favor, insira até 3 imagens do item que deseja compartilhar</h2>
+                            <div class="telaPvCont imgPlaces">
+                                <img src="src/Assets/images/sofa-800.jpg" alt="imagem 1" class="newImgs img-rounded">
+                                <img src="src/Assets/images/sofa-801.jpg" alt="imagem 2" class="newImgs img-rounded">
+                                <img src="src/Assets/images/sofa-802.jpg" alt="imagem 3" class="newImgs img-rounded">
+                            </div>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
+                                <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                            </div>
                         </div>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
-                            <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                        <div class="telaPv telaPv4">
+                            <h2>Qual o nome do item que você está compartilhando?</h2>
+                            <div class="telaPvCont form-group">
+                                <label for="nome-do-item"></label>
+                                <input type="text" class="form-control" id="nome-do-item" name="titulo" placeholder="Nome do Item">
+                            </div>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
+                                <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="telaPv telaPv3">
-                        <h2>Por favor, insira até 3 imagens do item que deseja compartilhar</h2>
-                        <div class="telaPvCont imgPlaces">
-                            <img src="src/Assets/images/sofa-800.jpg" alt="imagem 1" class="newImgs img-rounded">
-                            <img src="src/Assets/images/sofa-801.jpg" alt="imagem 2" class="newImgs img-rounded">
-                            <img src="src/Assets/images/sofa-802.jpg" alt="imagem 3" class="newImgs img-rounded">
-                        </div>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
-                            <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
-                        </div>
-                    </div>
-                    <div class="telaPv telaPv4">
-                        <h2>Qual o nome do item que você está compartilhando?</h2>
-                        <div class="telaPvCont form-group">
-                            <label for="nome-do-item"></label>
-                            <input type="text" class="form-control" id="nome-do-item" placeholder="Nome do Item">
-                        </div>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
-                            <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
-                        </div>
-                    </div>
-                    <div class="telaPv telaPv5">
-                        <h2>Decreva o item que você está compartilhando</h2>
-                        <div class="telaPvCont form-group">
-                            <label for="descricao-do-item"></label>
-                            <textarea class="form-control" id="descricao-do-item" placeholder="Descrição do Item"
+                        <div class="telaPv telaPv5">
+                            <h2>Decreva o item que você está compartilhando</h2>
+                            <div class="telaPvCont form-group">
+                                <label for="descricao-do-item"></label>
+                            <textarea class="form-control" id="descricao-do-item" name="descricao" placeholder="Descrição do Item"
                                       rows="3"></textarea>
+                            </div>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
+                                <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
+                            </div>
                         </div>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
-                            <a href="javascript:void(0);" class="link-continuar2 btn btn-primary">Continuar</a>
-                        </div>
-                    </div>
-                    <div class="telaPv telaPv6">
-                        <h2>Obrigado!</h2>
-                        <p>Agora é só aguardar uma mensagem de interesse e conversar com as pessoas que querem este item
-                            que você não usa mais.</p>
-                        <div class="telaPvButtons">
-                            <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
-                            <a href="javascript:void(0);" class="link-iniciar-lista2 btn btn-primary">Continuar</a>
+                        <div class="telaPv telaPv6">
+                            <h2>Obrigado!</h2>
+                            <p>Agora é só aguardar uma mensagem de interesse e conversar com as pessoas que querem este
+                                item
+                                que você não usa mais.</p>
+                            <div class="telaPvButtons">
+                                <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
+                                <button type="submit" class="btn btn-primary">Continuar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 
 <!-- Lista de Meus compartilhamentos-->
 <div class="modal fade" id="me-compartilhamentosModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">

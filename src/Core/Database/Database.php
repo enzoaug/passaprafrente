@@ -28,6 +28,7 @@ class Database
      */
     public function __construct()
     {
+        $this->pdo = $this->connect();
         $this->connectionValidate();
     }
 
@@ -64,15 +65,6 @@ class Database
             return true;
         }
         throw new Exception("Esta não é uma configuração válida");
-    }
-
-    public function actualize()
-    {
-        $select = $this->pdo->prepare("select * from usuarios where nome like :nome;");
-        $select->bindValue(":nome", $_GET["nome"]);
-        $select->execute();
-
-        return $select->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }
