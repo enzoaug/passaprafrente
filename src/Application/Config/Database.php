@@ -20,9 +20,9 @@ class Database
      */
     public static $DB = [
         "server" => "localhost",
-        "database" => "passaprafrente",
+        "database" => "u694535801_ppf",
         "user" => "root",
-        "password" => ";;",
+        "password" => "123456;;",
         "options" => []
     ];
 
