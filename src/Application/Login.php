@@ -44,13 +44,13 @@ try {
     echo "Não foi possível fazer login. Entre em contato com os administradores.";
 } finally {
     if ($resultado["email"] == $user && $resultado["senha"] == $pass) {
-        header("Location: /passaprafrente/index.php");
+        header("Location: index.php");
         session_start();
         $_SESSION["usuario"] = $resultado["nome"] . " " . $resultado["sobrenome"];
         $_SESSION["apelido"] = $resultado["apelido"];
         $_SESSION["usuario_id"] = $resultado["id"];
     } else {
-        header("Location: /passaprafrente/login.php?alerta=invalido");
+        header("Location: login.php?alerta=invalido");
         session_destroy();
     }
 }
