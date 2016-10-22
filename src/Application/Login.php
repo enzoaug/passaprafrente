@@ -12,7 +12,8 @@ use Core\Database\Database;
 use Core\Database\Instructions\Select;
 use PDO;
 
-include_once "../../vendor/autoload.php";
+define("DS", DIRECTORY_SEPARATOR);
+include_once ".." . DS . ".." . DS . "vendor" . DS . "autoload.php";
 
 $conn = new Database();
 $pdo = $conn->connect();
