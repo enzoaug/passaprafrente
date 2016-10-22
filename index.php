@@ -7,7 +7,7 @@ define("DS", DIRECTORY_SEPARATOR);
 include ROOT . DS . "vendor" . DS . "autoload.php";
 
 if (!isset($_SESSION["usuario_id"]) && empty($_SESSION["usuario_id"])) {
-    header("Location: /passaprafrente/login.php");
+    header("Location: login.php");
 }
 
 $conn = new \Core\Database\Database();
