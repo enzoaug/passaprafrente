@@ -12,7 +12,7 @@ use Core\Database\Database;
 use Core\Database\Instructions\Select;
 use PDO;
 
-include "../../vendor/autoload.php";
+include_once "../../vendor/autoload.php";
 
 $conn = new Database();
 $pdo = $conn->connect();
@@ -44,13 +44,13 @@ try {
     echo "Não foi possível fazer login. Entre em contato com os administradores.";
 } finally {
     if ($resultado["email"] == $user && $resultado["senha"] == $pass) {
-        header("Location: index.php");
+        header("Location: /passaprafrente/index.php");
         session_start();
         $_SESSION["usuario"] = $resultado["nome"] . " " . $resultado["sobrenome"];
         $_SESSION["apelido"] = $resultado["apelido"];
         $_SESSION["usuario_id"] = $resultado["id"];
     } else {
-        header("Location: login.php?alerta=invalido");
+        header("Location: /passaprafrente/login.php?alerta=invalido");
         session_destroy();
     }
 }

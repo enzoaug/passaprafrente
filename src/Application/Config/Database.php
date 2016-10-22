@@ -22,7 +22,7 @@ class Database
         "server" => "mysql.hostinger.com.br",
         "database" => "u694535801_ppf",
         "user" => "u694535801_root",
-        "password" => "Bn5hLB1UxU",
+        "password" => "y8CwsjxaFK",
         "options" => []
     ];
 
