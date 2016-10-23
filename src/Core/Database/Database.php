@@ -42,6 +42,7 @@ class Database
                 AppDatabase::$DB["options"]
             );
         } catch (\PDOException $e) {
+            print_r(AppDatabase::$DB);
             throw new Exception("Erro na conexão. Código: " . $e->getCode() . "Mensagem: " . $e->getMessage());
         }
 

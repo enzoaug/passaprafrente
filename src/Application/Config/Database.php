@@ -21,8 +21,8 @@ class Database
     public static $DB = [
         "server" => "mysql.hostinger.com.br",
         "database" => "u694535801_ppf",
-        "user" => "u694535801_root",
-        "password" => "y8CwsjxaFK",
+        "user" => "u694535801_ppf",
+        "password" => "123456asd",
         "options" => []
     ];
 
