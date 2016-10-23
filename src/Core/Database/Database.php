@@ -24,7 +24,6 @@ class Database
     /**
      * Database constructor.
      * @throws Exception
-     * @internal param AppDatabase|array $config
      */
     public function __construct()
     {
