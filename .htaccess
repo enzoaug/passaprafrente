@@ -1,5 +1,1 @@
 RewriteBase /passaprafrente/
-Options +FollowSymLinks
-RewriteEngine on
-RewriteCond %{HTTP_HOST} ^passaprafrente.esy.es/passaprafrente/[nc]
-RewriteRule ^(.*)$ http://www.passaprafrente.esy.es/passaprafrente//$1 [r=301,nc]
