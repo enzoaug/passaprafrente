@@ -2,6 +2,14 @@
 if (isset($_GET["alerta"]) && !empty($_GET["alerta"]) && $_GET["alerta"] == "invalido") {
     echo "<script>alert('Usuário ou senha inválidos!')</script>";
 }
+
+if (isset($_GET["registro"]) && !empty($_GET["registro"]) && $_GET["registro"] == "ok") {
+    echo "<script>alert('Registrado com sucesso! Fala o login e Passa pra Frente!')</script>";
+}
+
+if (isset($_GET["logout"]) && !empty($_GET["logout"]) && $_GET["logout"] == "ok") {
+    echo "<script>alert('Deslogado com sucesso!')</script>";
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,28 +37,28 @@ if (isset($_GET["alerta"]) && !empty($_GET["alerta"]) && $_GET["alerta"] == "inv
         <a href="#" class="btn login-cadastro" data-toggle="modal" data-target="#myLogin">Logar com seu cadastro</a>
     </div>
 </div>
-<footer>
-    <div class="cont-footer center">
+<footer class="footer">
+    <div class="cont-footer">
         <ul>
             <li class="link-pai link01">
-                <span class="link-filho title-dos-links">Paisis</span>
-                <a href="#" class="link-filho link01">Mussum Ipsum</a>
-                <a href="#" class="link-filho link02">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Lorem</span>
+                <a href="#" class="link-filho link01">Lorem Ipsum</a>
+                <a href="#" class="link-filho link02">Dolor Sit</a>
             </li>
             <li class="link-pai link02">
-                <span class="link-filho title-dos-links">Filhis</span>
-                <a href="#" class="link-filho link03">Mussum Ipsum</a>
-                <a href="#" class="link-filho link04">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Ipsum</span>
+                <a href="#" class="link-filho link03">Amet Lorem</a>
+                <a href="#" class="link-filho link04">Ipsum Dolor</a>
             </li>
             <li class="link-pai link03">
-                <span class="link-filho title-dos-links">Espiritis santis</span>
-                <a href="#" class="link-filho link05">Mussum Ipsum</a>
-                <a href="#" class="link-filho link06">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Dolor</span>
+                <a href="#" class="link-filho link05">Sit Amet</a>
+                <a href="#" class="link-filho link06">Lorem Ipsum</a>
             </li>
             <li class="link-pai link04">
-                <span class="link-filho title-dos-links">Cacilds</span>
-                <a href="#" class="link-filho link07">Mussum Ipsum</a>
-                <a href="#" class="link-filho ink08">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Sit</span>
+                <a href="#" class="link-filho link07">Dolor Sit</a>
+                <a href="#" class="link-filho ink08">Amet Lorem</a>
             </li>
         </ul>
     </div>
@@ -75,7 +83,42 @@ if (isset($_GET["alerta"]) && !empty($_GET["alerta"]) && $_GET["alerta"] == "inv
                     </div>
                     <div class="form-group">
                         <label for="InputPassword1">Senha</label>
-                        <input type="password" name="senha" class="form-control" id="InputPassword1" placeholder="Password">
+                        <input type="password" name="senha" class="form-control" id="InputPassword1" placeholder="Senha">
+                    </div>
+                    <input type="submit" class="btn btn-default"/>&nbsp;
+                    <a href="#" data-toggle="modal" data-target="#myRegister">Ainda não tem cadastro?</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myRegister" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <form method="post" action="src/Application/Register.php">
+                    <div class="form-group">
+                        <label for="InputName">Nome</label>
+                        <input type="text" name="nome" class="form-control" id="InputName" placeholder="Nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputLastName">Sobrenome</label>
+                        <input type="text" name="sobrenome" class="form-control" id="InputLastName" placeholder="Sobrenome">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputEmail1">Endereço de e-mail</label>
+                        <input type="email" name="email" class="form-control" id="InputEmail1" placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputPassword1">Senha</label>
+                        <input type="password" name="senha" class="form-control" id="InputPassword1" placeholder="Senha">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputPassword2">Repita a Senha</label>
+                        <input type="password" name="repitasenha" class="form-control" id="InputPassword2" placeholder="Repita a Senha">
                     </div>
                     <input type="submit" class="btn btn-default"/>
                 </form>
@@ -83,11 +126,6 @@ if (isset($_GET["alerta"]) && !empty($_GET["alerta"]) && $_GET["alerta"] == "inv
         </div>
     </div>
 </div>
-<script>
-    $("#login").on("click", function () {
-        alert("Olá, mundo!");
-    });
-</script>
 </body>
 </html>
 

@@ -2,7 +2,7 @@ $(document).ready(function () {
     if ($(window).width() > 992) {
         console.log('Bezerrão Cuqueteiro');
         $('.aside').prepend($('.novidades .novidade-lista'));
-        $('.novidades .novidade-lista').prepend('<li class="list-news-iten"><h3>Novidades</h3></li>');
+        $('.novidades .novidade-lista').prepend('<li class="list-news-iten"><h3>Mensagens</h3></li>');
     }
 
     $('#primeiraVisita').modal('show');

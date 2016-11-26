@@ -4,10 +4,22 @@ session_start();
 define("ROOT", dirname(__FILE__));
 define("DS", DIRECTORY_SEPARATOR);
 
-include ROOT . DS . "vendor" . DS . "autoload.php";
+include_once ROOT . DS . "vendor" . DS . "autoload.php";
 
 if (!isset($_SESSION["usuario_id"]) && empty($_SESSION["usuario_id"])) {
-    header("Location: /passaprafrente/login.php");
+    header("Location: login.php");
+}
+
+if (isset($_GET["euquero"]) && !empty($_GET["euquero"]) && $_GET["euquero"] == "ok") {
+    echo "<script>alert('Solicitação enviada com sucesso! Agora é só aguardar uma resposta! =)')</script>";
+}
+
+if (isset($_GET["alterarPerfil"]) && !empty($_GET["alterarPerfil"]) && $_GET["alterarPerfil"] == "ok") {
+    echo "<script>alert('Perfil alterado com sucesso!')</script>";
+}
+
+if (isset($_GET["produto"]) && !empty($_GET["produto"]) && $_GET["produto"] == "ok") {
+    echo "<script>alert('Produto adicionado com sucesso!')</script>";
 }
 
 $conn = new \Core\Database\Database();
@@ -17,6 +29,27 @@ $all = new \Application\Produtos\All();
 $select = $pdo->prepare($all->getAll());
 $select->execute();
 $produtos = $select->fetchAll(PDO::FETCH_OBJ);
+
+if (isset($_GET["buscar"]) && !empty($_GET["buscar"])) {
+    $select = $pdo->prepare($all->getAll($_GET["buscar"]));
+    $select->execute();
+    $produtos = $select->fetchAll(PDO::FETCH_OBJ);
+}
+
+$allMensagens = new \Application\Mensagens\All();
+$selectMensagens = $pdo->prepare($allMensagens->getAll());
+$selectMensagens->execute();
+$mensagens = $selectMensagens->fetchAll(PDO::FETCH_OBJ);
+
+$allMeusCompartilhamentos = new \Application\Produtos\All();
+$selectMeusCompartilhamentos = $pdo->prepare($allMeusCompartilhamentos->getMeusCompartilhamentos());
+$selectMeusCompartilhamentos->execute();
+$meusCompartilhamentos = $selectMeusCompartilhamentos->fetchAll(PDO::FETCH_OBJ);
+
+$allUser = new \Application\Usuarios\All();
+$selectUser = $pdo->prepare($allUser->getUser($_SESSION["usuario_id"]));
+$selectUser->execute();
+$user = $selectUser->fetch(PDO::FETCH_OBJ);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -44,14 +77,17 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
 <header class="container-fluid header navbar-fixed-top">
     <div class="container">
         <div class="row">
-            <div class="busca-no-site">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="buscar" placeholder="Buscar">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button"><i class="fa fa-search" aria-hidden="true"></i></button>
-              </span>
-                </div><!-- /input-group -->
-            </div>
+            <form method="GET">
+                <div class="busca-no-site">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="buscar" id="buscar" placeholder="Buscar">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button"><i class="fa fa-search" aria-hidden="true"></i>
+                        </button>
+                    </span>
+                    </div><!-- /input-group -->
+                </div>
+            </form>
             <button type="button" class="btn btn-primary bt-passa-pra-frente" data-toggle="modal"
                     data-target="#compartilhandoThis">Passa pra frente!
             </button>
@@ -64,10 +100,10 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
                 </button>
                 <ul class="dropdown-menu menu-user"><!-- Dropdown do menu do usuáio -->
                     <li class="coluna1">
-                        <div class="img-me"><img src="src/Assets/images/user.jpg" alt="Imagem do Usuário"
+                        <div class="img-me"><img src="src/Assets/images/<?= $user->foto ?>" alt="Imagem do Usuário"
                                                  class="img-circle"></div>
                         <h2 class="nome-me"><?= $_SESSION["usuario"] ?></h2>
-                        <h3 class="apelido-me"><?= utf8_encode($_SESSION["apelido"]) ?></h3>
+                        <h3 class="apelido-me"><?= $user->apelido ?></h3>
                         <div class="seguidores-me"><span>Seguidores: </span><span class="numero">5</span></div>
                         <div class="seguindo-me"><span>Seguindo: </span><span class="numero">7</span></div>
                         <div class="itens-comp"><span>Itens compartilhados: </span><span class="numero">5</span></div>
@@ -83,7 +119,9 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
                         <button type="button" class="btn btn-default alt-perfil" data-toggle="modal"
                                 data-target="#alt-perfilModal">Alterar perfil
                         </button>
-                        <button type="button" class="btn btn-default btn-warning logoff">Deslogar</button>
+                        <form action="src/Application/Logout.php">
+                            <button type="submit" class="btn btn-default btn-warning logoff">Deslogar</button>
+                        </form>
                     </li>
                 </ul><!-- fim do Dropdown do menu do usuáio -->
             </div>
@@ -107,10 +145,10 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
                         </div>
                     </div>
                     <!--a href="#" class="link-produto"-->
-                    <a href="javascript:void(0)" class="link-produto" data-toggle="modal" data-target="#Produto0001">
+                    <a href="#void" class="link-produto" data-toggle="modal" data-target="#Produto<?= $produto->id ?>">
                         <img src="src/Assets/images/<?= $produto->imagem ?>" class="img-rounded">
                     </a>
-                    <a href="javascript:void(0)" class="info-prod" data-toggle="modal" data-target="#Produto0001">
+                    <a href="#void" class="info-prod" data-toggle="modal" data-target="#Produto<?= $produto->id ?>">
                         <h2 class="nome-prod"><?= $produto->titulo ?></h2>
                         <h3 class="lil-desc"><?= $produto->descricao ?></h3>
                     </a>
@@ -149,30 +187,31 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
     <div class="cont-footer">
         <ul>
             <li class="link-pai link01">
-                <span class="link-filho title-dos-links">Paisis</span>
-                <a href="#" class="link-filho link01">Mussum Ipsum</a>
-                <a href="#" class="link-filho link02">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Lorem</span>
+                <a href="#" class="link-filho link01">Lorem Ipsum</a>
+                <a href="#" class="link-filho link02">Dolor Sit</a>
             </li>
             <li class="link-pai link02">
-                <span class="link-filho title-dos-links">Filhis</span>
-                <a href="#" class="link-filho link03">Mussum Ipsum</a>
-                <a href="#" class="link-filho link04">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Ipsum</span>
+                <a href="#" class="link-filho link03">Amet Lorem</a>
+                <a href="#" class="link-filho link04">Ipsum Dolor</a>
             </li>
             <li class="link-pai link03">
-                <span class="link-filho title-dos-links">Espiritis santis</span>
-                <a href="#" class="link-filho link05">Mussum Ipsum</a>
-                <a href="#" class="link-filho link06">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Dolor</span>
+                <a href="#" class="link-filho link05">Sit Amet</a>
+                <a href="#" class="link-filho link06">Lorem Ipsum</a>
             </li>
             <li class="link-pai link04">
-                <span class="link-filho title-dos-links">Cacilds</span>
-                <a href="#" class="link-filho link07">Mussum Ipsum</a>
-                <a href="#" class="link-filho ink08">Mussum Ipsum</a>
+                <span class="link-filho title-dos-links">Sit</span>
+                <a href="#" class="link-filho link07">Dolor Sit</a>
+                <a href="#" class="link-filho ink08">Amet Lorem</a>
             </li>
         </ul>
     </div>
 </footer>
 
 <!-- Modal Novidades para Mobile -->
+
 <div class="novidades modal fade" id="novidades" tabindex="-1" role="dialog" aria-labelledby="Novidades">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -183,51 +222,32 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
             </div>
             <div class="modal-body">
                 <ul class="novidade-lista">
-                    <li class="list-news-iten">
-                        <a href="#" data-toggle="modal" data-target="#message0001">
-                  <span class="owner-image-cont receptor">
-                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                  </span>
-                            <p class="historia">
-                                <strong class="receptor-name">Você</strong>
-                                <span class="action">recebeu mensagem de</span>
-                                <strong class="doador-name">Joana da Silva</strong>
-                            </p>
-                  <span class="owner-image-cont doador">
-                    <img src="src/Assets/images/owner02.jpg" alt="Nome do dono" class="owner-img img-circle">
-                  </span>
-                        </a>
-                    </li>
-                    <li class="list-news-iten">
-                        <a href="#">
-                  <span class="owner-image-cont receptor">
-                    <img src="src/Assets/images/owner02.jpg" alt="Nome do dono" class="owner-img img-circle">
-                  </span>
-                            <p class="historia">
-                                <strong class="receptor-name">Joana da Silva</strong>
-                                <span class="action">recebeu um item de</span>
-                                <strong class="doador-name">Jõao da Silva</strong>
-                            </p>
-                  <span class="owner-image-cont doador">
-                    <img src="src/Assets/images/owner01.jpg" alt="Nome do dono" class="owner-img img-circle">
-                  </span>
-                        </a>
-                    </li>
-                    <li class="list-news-iten">
-                        <a href="#">
-                  <span class="owner-image-cont receptor">
-                    <img src="src/Assets/images/owner01.jpg" alt="Nome do dono" class="owner-img img-circle">
-                  </span>
-                            <p class="historia">
-                                <strong class="receptor-name">Jõao da Silva</strong>
-                                <span class="action">recebeu um item de</span>
-                                <strong class="doador-name">Joana da Silva</strong>
-                            </p>
-                  <span class="owner-image-cont doador">
-                    <img src="src/Assets/images/owner02.jpg" alt="Nome do dono" class="owner-img img-circle">
-                  </span>
-                        </a>
-                    </li>
+                    <?php if (isset($mensagens) && !empty($mensagens)) : ?>
+                        <?php foreach ($mensagens as $mensagem) : ?>
+                            <li class="list-news-iten">
+                                <a href="#" data-toggle="modal" data-target="#message<?= $mensagem->id ?>">
+                                <span class="owner-image-cont receptor">
+                                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                </span>
+                                    <p class="historia">
+                                        <strong
+                                            class="receptor-name">Você</strong>
+                                        <span class="action">recebeu mensagem de</span>
+                                        <strong
+                                            class="doador-name"><?= $mensagem->nome_usuario_recebe ?> <?= $mensagem->sobrenome_usuario_recebe ?></strong>
+                                    </p>
+                                <span class="owner-image-cont doador">
+                                <img src="src/Assets/images/owner02.jpg" alt="Nome do dono"
+                                     class="owner-img img-circle">
+                                </span>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <li class="list-news-iten">
+                            <p>Nenhuma mensagem por aqui!</p>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -237,148 +257,140 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
     </div>
 </div>
 
-<div class="modal fade produto-page" id="Produto0001" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <div class="ident-info">
-                    <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
-                    <div class="info-name-date">
-                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                        <span class="time">Há 2 dias</span>
-                    </div>
-                    <div class="title-produto">
-                        <h2>Lorem ipsum dolor sit amet</h2>
-                    </div>
-                    <div class="cont-likes-comments">
-                        <div class="likes text-danger">
-                            <i class="fa fa-heart-o" aria-hidden="true"></i>
-                            <span class="like-count">3</span>
+<?php foreach ($produtos as $produto) : ?>
+    <div class="modal fade produto-page" id="Produto<?= $produto->id ?>" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="ident-info">
+                        <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
+                        <div class="info-name-date">
+                            <a href="#"><h3 class="nome-compart"><?= $produto->nome ?> <?= $produto->sobrenome ?></h3>
+                            </a>
+                            <span class="time"><?= $all->parseMinute($produto->postdate) ?></span>
                         </div>
-                        <div class="scraps text-info">
-                            <i class="fa fa-pencil" aria-hidden="true"></i>
-                            <span class="scraps-count">5</span>
+                        <div class="title-produto">
+                            <h2><?= $produto->titulo ?></h2>
+                        </div>
+                        <div class="cont-likes-comments">
+                            <div class="likes text-danger">
+                                <i class="fa fa-heart-o" aria-hidden="true"></i>
+                                <span class="like-count">3</span>
+                            </div>
+                            <div class="scraps text-info">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                <span class="scraps-count">5</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-body">
-                <div class="container produto-container">
+                <div class="modal-body">
+                    <div class="container produto-container">
 
-                    <div class="imgProd-Cont col-md-6">
-                        <div class="img-do-produto">
-                            <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                            <img src="src/Assets/images/sofa-801.jpg" class="img-rounded">
-                            <img src="src/Assets/images/sofa-802.jpg" class="img-rounded">
-                        </div>
-                    </div>
-                    <div class="conteudo-R">
-                        <div class="title-produto">
-                            <h2>Lorem ipsum dolor sit amet</h2>
-                            <div class="cont-likes-comments">
-                                <div class="likes text-danger">
-                                    <i class="fa fa-heart-o" aria-hidden="true"></i>
-                                    <span class="like-count">3</span>
-                                </div>
-                                <div class="scraps text-info">
-                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                    <span class="scraps-count">5</span>
-                                </div>
+                        <div class="imgProd-Cont col-md-6">
+                            <div class="img-do-produto">
+                                <img src="src/Assets/images/<?= $produto->imagem ?>" class="img-rounded">
+                                <img src="src/Assets/images/sofa-801.jpg" class="img-rounded">
+                                <img src="src/Assets/images/sofa-802.jpg" class="img-rounded">
                             </div>
                         </div>
-                        <div class="descricao-produto">
-                            <h3>Descricão do produto</h3>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                                dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                            </p>
-                            <p>
-                                Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                                laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-                                architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas
-                                sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione
-                                voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit
-                                amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut
-                                labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis
-                                nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi
-                                consequatur.
-                            </p>
-                        </div>
-                        <a href="#" class="btn btn-success eu-quero btn-lg" data-toggle="modal"
-                           data-target="#eu-queroModal">Eu quero!</a>
-
-                    </div>
-
-                    <div class="opiniao-users">
-                        <div class="opiniao-menu">
-                            <a class="btn btn-default opnUsuario" href="#" role="button">Ver a opinião dos usuários</a>
-                            <a class="btn btn-default postarOpiniao" href="#" role="button">Deixar sua opinião</a>
-                        </div>
-                        <div class="opiniao-users-texts">
-                            <div class="opUsers-cont opUsers-cont-001">
-                                <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
-                                                                  class="owner-img img-circle"></a>
-                                <div class="info-name-opUsers">
-                                    <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                                    <p>disse a <span class="time">2 dias</span></p>
+                        <div class="conteudo-R">
+                            <div class="title-produto">
+                                <h2><?= $produto->titulo ?></h2>
+                                <div class="cont-likes-comments">
+                                    <div class="likes text-danger">
+                                        <i class="fa fa-heart-o" aria-hidden="true"></i>
+                                        <span class="like-count">3</span>
+                                    </div>
+                                    <div class="scraps text-info">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        <span class="scraps-count">5</span>
+                                    </div>
                                 </div>
-                                <p class="opUsers-text">
-                                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore
-                                    magnam aliquam quaerat voluptatem.
-                                </p>
                             </div>
+                            <div class="descricao-produto">
+                                <h3>Descricão do produto</h3>
+                                <p><?= $produto->descricao ?></p>
+                            </div>
+                            <a href="#" class="btn btn-success eu-quero btn-lg" data-toggle="modal"
+                               data-target="#eu-queroModal<?= $produto->id ?>">Eu quero!</a>
 
-                            <div class="opUsers-cont opUsers-cont-002">
-                                <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
-                                                                  class="owner-img img-circle"></a>
-                                <div class="info-name-opUsers">
-                                    <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                                    <p>disse a <span class="time">2 dias</span></p>
-                                </div>
-                                <p class="opUsers-text">
-                                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore
-                                    magnam aliquam quaerat voluptatem.
-                                </p>
-                            </div>
-
-                            <div class="opUsers-cont opUsers-cont-003">
-                                <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
-                                                                  class="owner-img img-circle"></a>
-                                <div class="info-name-opUsers">
-                                    <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
-                                    <p>disse a <span class="time">2 dias</span></p>
-                                </div>
-                                <p class="opUsers-text">
-                                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore
-                                    magnam aliquam quaerat voluptatem.
-                                </p>
-                            </div>
                         </div>
 
-                        <div class="minha-opiniao">
-                            <form>
-                                <div class="form-group">
-                                    <label for="minha-opiniao-text">Escreva no campo abaixo sua opoinião sobre o
-                                        item.</label>
+                        <div class="opiniao-users">
+                            <div class="opiniao-menu">
+                                <a class="btn btn-default opnUsuario" href="#" role="button">Ver a opinião dos
+                                    usuários</a>
+                                <a class="btn btn-default postarOpiniao" href="#" role="button">Deixar sua opinião</a>
+                            </div>
+                            <div class="opiniao-users-texts">
+                                <div class="opUsers-cont opUsers-cont-001">
+                                    <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
+                                                                      class="owner-img img-circle"></a>
+                                    <div class="info-name-opUsers">
+                                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
+                                        <p>disse a <span class="time">2 dias</span></p>
+                                    </div>
+                                    <p class="opUsers-text">
+                                        Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+                                        adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
+                                        dolore
+                                        magnam aliquam quaerat voluptatem.
+                                    </p>
+                                </div>
+
+                                <div class="opUsers-cont opUsers-cont-002">
+                                    <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
+                                                                      class="owner-img img-circle"></a>
+                                    <div class="info-name-opUsers">
+                                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
+                                        <p>disse a <span class="time">2 dias</span></p>
+                                    </div>
+                                    <p class="opUsers-text">
+                                        Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+                                        adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
+                                        dolore
+                                        magnam aliquam quaerat voluptatem.
+                                    </p>
+                                </div>
+
+                                <div class="opUsers-cont opUsers-cont-003">
+                                    <a href="#" class="user-pic"><img src="src/Assets/images/owner02.jpg"
+                                                                      class="owner-img img-circle"></a>
+                                    <div class="info-name-opUsers">
+                                        <a href="#"><h3 class="nome-compart">Nome do Usuário</h3></a>
+                                        <p>disse a <span class="time">2 dias</span></p>
+                                    </div>
+                                    <p class="opUsers-text">
+                                        Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+                                        adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et
+                                        dolore
+                                        magnam aliquam quaerat voluptatem.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="minha-opiniao">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="minha-opiniao-text">Escreva no campo abaixo sua opoinião sobre o
+                                            item.</label>
                                     <textarea class="form-control mOpiniao-tArea" rows="3"
                                               id="minha-opiniao-text"></textarea>
-                                    <button type="submit" class="btn btn-default">Enviar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div><!-- fim de opiniao-users -->
+                                        <button type="submit" class="btn btn-default">Enviar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div><!-- fim de opiniao-users -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+<?php endforeach; ?>
 
 <!-- Lista de Minhas Mensagens-->
 <div class="modal fade" id="minhasMsgModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -486,7 +498,8 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
                             <h2>Qual o nome do item que você está compartilhando?</h2>
                             <div class="telaPvCont form-group">
                                 <label for="nome-do-item"></label>
-                                <input type="text" class="form-control" id="nome-do-item" name="titulo" placeholder="Nome do Item">
+                                <input type="text" class="form-control" id="nome-do-item" name="titulo"
+                                       placeholder="Nome do Item">
                             </div>
                             <div class="telaPvButtons">
                                 <a href="javascript:void(0);" class="link-voltar2 btn btn-secondary">Voltar</a>
@@ -497,7 +510,8 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
                             <h2>Decreva o item que você está compartilhando</h2>
                             <div class="telaPvCont form-group">
                                 <label for="descricao-do-item"></label>
-                            <textarea class="form-control" id="descricao-do-item" name="descricao" placeholder="Descrição do Item"
+                            <textarea class="form-control" id="descricao-do-item" name="descricao"
+                                      placeholder="Descrição do Item"
                                       rows="3"></textarea>
                             </div>
                             <div class="telaPvButtons">
@@ -533,81 +547,37 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
             </div>
             <div class="modal-body">
                 <div class="cont-itens-compertilhados">
-
-
                     <!--Item compartilhado por mim -->
-                    <div class="item-compartilhado">
-                        <div class="imagem-item pull-left">
-                            <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                        </div>
-                        <div class="cont-infos-item pull-right">
-                            <h4 class="nome-do-item pull-left">Lorem ipsum dolor</h4>
-                            <span class="compartilhado-por pull-left"><small>Compartilhado por:</small><span
-                                    class="nome-do-compartilhador text-primary">Mim</span></span>
-                            <small class="estado-troca bg-info">Em andamento</small>
-                            <div class="cont-contrlStatus">
-                                <button type="button" class="btn btn-default dropdown-toggle btn-xs"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <i class="fa fa-caret-square-o-down" aria-hidden="true"></i>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                    <li><strong>Escolha o estado do compartilhamento:</strong></li>
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <button type="button" class="btn btn-default btn-sm">Em andamento</button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="btn btn-success btn-sm">Finalizado</button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="btn btn-danger btn-sm">Cancelado</button>
-                                    </li>
-                                </ul>
+                    <?php foreach ($meusCompartilhamentos as $meuCompartilhamento) : ?>
+                        <div class="item-compartilhado">
+                            <div class="imagem-item pull-left">
+                                <img src="src/Assets/images/<?= $meuCompartilhamento->imagem ?>" class="img-rounded">
+                            </div>
+                            <div class="cont-infos-item pull-right">
+                                <h4 class="nome-do-item pull-left"><?= $meuCompartilhamento->titulo ?></h4>
+                                <small class="estado-troca bg-info">Em andamento</small>
+                                <div class="cont-contrlStatus">
+                                    <button type="button" class="btn btn-default dropdown-toggle btn-xs"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <i class="fa fa-caret-square-o-down" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                        <li><strong>Escolha o estado do compartilhamento:</strong></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li>
+                                            <button type="button" class="btn btn-default btn-sm">Em andamento</button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="btn btn-success btn-sm">Finalizado</button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="btn btn-danger btn-sm">Cancelado</button>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!--Item compartilhado com negócio em andamento -->
-                    <div class="item-compartilhado">
-                        <div class="imagem-item pull-left">
-                            <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                        </div>
-                        <div class="cont-infos-item pull-right">
-                            <h4 class="nome-do-item pull-left">Lorem ipsum dolor</h4>
-                            <span class="compartilhado-por pull-left"><small>Compartilhado por:</small><a href="#"
-                                                                                                          class="nome-do-compartilhador text-info">Nome
-                                    do usuário</a></span>
-                            <small class="estado-troca bg-info">Em andamento</small>
-                        </div>
-                    </div>
-
-                    <!--Item compartilhado com negócio finalizado -->
-                    <div class="item-compartilhado">
-                        <div class="imagem-item pull-left">
-                            <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                        </div>
-                        <div class="cont-infos-item pull-right">
-                            <h4 class="nome-do-item pull-left">Lorem ipsum dolor</h4>
-                            <span class="compartilhado-por pull-left"><small>Compartilhado por:</small><a href="#"
-                                                                                                          class="nome-do-compartilhador text-info">Nome
-                                    do usuário</a></span>
-                            <small class="estado-troca bg-success">Finalizado</small>
-                        </div>
-                    </div>
-
-                    <!--Item compartilhado com negócio cancelado -->
-                    <div class="item-compartilhado">
-                        <div class="imagem-item pull-left">
-                            <img src="src/Assets/images/sofa-800.jpg" class="img-rounded">
-                        </div>
-                        <div class="cont-infos-item pull-right">
-                            <h4 class="nome-do-item pull-left">Lorem ipsum dolor</h4>
-                            <span class="compartilhado-por pull-left"><small>Compartilhado por:</small><a href="#"
-                                                                                                          class="nome-do-compartilhador text-info">Nome
-                                    do usuário</a></span>
-                            <small class="estado-troca bg-danger">Cancelado</small>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -618,105 +588,114 @@ $produtos = $select->fetchAll(PDO::FETCH_OBJ);
 <div class="modal fade" id="alt-perfilModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <!--div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="myModalLabel">Mensagens</h4>
-            </div-->
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <div class="contAltPerfil">
-                    <div class="altFoto">
-                        <div class="img-me"><img src="src/Assets/images/user.jpg" alt="Imagem do Usuário"
-                                                 class="img-circle"></div>
-                        <span><button type="button" class="btn btn-primary">Alterar Foto</button></span>
+            <form action="src/Application/Usuarios/Profile.php" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="contAltPerfil">
+                        <div class="altFoto">
+                            <div class="img-me"><img src="src/Assets/images/<?= $user->foto ?>" alt="Imagem do Usuário"
+                                                     class="img-circle"></div>
+                            <span>
+                                <label for="foto">Alterar Foto</label>
+                                <input type="file" id="foto" name="foto">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group altPerfForm">
+                        <label for="esccreva-textoMsg">Apelido</label>
+                        <input type="text" class="form-control" name="apelido" id="esccreva-textoMsg"
+                               placeholder="<?= ($user->apelido) ? $user->apelido : "Escreva aqui seu apelido..." ?>">
+
+                        <label for="esccreva-textoMsg">Descrição</label>
+                        <textarea name="descricao" id="esccreva-textoMsg" class="form-control"
+                                  placeholder="Escreva aqui sua descrição"><?= ($user->descricao) ? $user->descricao : "Escreva aqui sua descricao..." ?></textarea>
+                  <span>
+                    <button type="submit" class="btn btn-success">Enviar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Cancelar
+                    </button>
+                  </span>
                     </div>
                 </div>
-
-                <div class="form-group altPerfForm">
-                    <label for="esccreva-textoMsg">Apelido</label>
-                    <input type="text" class="form-control" id="esccreva-textoMsg"
-                           placeholder="Escreva aqui seu novo apelido">
-
-                    <label for="esccreva-textoMsg">Descrição</label>
-                    <input type="text" class="form-control" id="esccreva-textoMsg"
-                           placeholder="Escreva aqui sua descrição">
-            
-              
-              <span>
-                <button type="submit" class="btn btn-success">Enviar</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Cancelar</button>  
-              </span>
-
-
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
 <!--Eu quero!-->
-<div class="modal fade" id="eu-queroModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h2 class="center-block text-success">Opa! Estamos quase lá! :)</h2>
-                <h3 class="center-block text-info">Sua solicitação do item foi enviada com sucesso. Agora é só aguardar
-                    a resposta do compartilhador.</h3>
-                <p class="center-block text-info">Você também pode escrever uma mensagem para o compartilhador deste
-                    item dizendo o quanto você gostou dele!</p>
-            </div>
-            <div class="modal-footer">
-                <div class="form-group escrver-msgForm">
-                    <label for="esccreva-textoMsg">Digite sua mensagem</label>
-                    <input type="text" class="form-control" id="esccreva-textoMsg" placeholder="Mensagem...">
-                    <button type="submit" class="btn btn-primary">Enviar</button>
+<?php foreach ($produtos as $produto) : ?>
+    <div class="modal fade" id="eu-queroModal<?= $produto->id ?>" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <form action="src/Application/EuQuero.php" method="post">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h2 class="center-block text-success">Opa! Estamos quase lá! :)</h2>
+                        <h3 class="center-block text-info">Sua solicitação do item foi enviada com sucesso. Agora é só
+                            aguardar
+                            a resposta do compartilhador.</h3>
+                        <p class="center-block text-info">Você também pode escrever uma mensagem para o compartilhador
+                            deste
+                            item dizendo o quanto você gostou dele!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group escrver-msgForm">
+                            <label for="esccreva-textoMsg">Digite sua mensagem</label>
+                            <input type="hidden" name="usuario_id_envio" value="<?= $_SESSION["usuario_id"] ?>">
+                            <input type="hidden" name="usuario_id_recebe" value="<?= $produto->usuario_id ?>">
+                            <textarea name="texto" class="form-control" id="esccreva-textoMsg"
+                                      placeholder="Mensagem..."></textarea>
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
-</div>
+<?php endforeach; ?>
 
 <!--mensagem recebida-->
-<div class="modal fade" id="message0001" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Mensagens</h4>
-            </div>
-            <div class="modal-body">
-                <div class="mensagens-anteriores">
-                    <a class="btn btn-link center-block" href="#" role="button">
-                        <small><i class="fa fa-long-arrow-up" aria-hidden="true"></i> Mensagens anteriores</small>
-                    </a>
+<?php foreach ($mensagens as $mensagem) : ?>
+    <div class="modal fade" id="message<?= $mensagem->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Mensagens</h4>
                 </div>
-                <div class="cont-message mensagem-enviada">
-                    <p class="mensagem-texto">Olá! Gostaria de saber se posso retirar o item na sua casa.</p>
+                <div class="modal-body">
+                    <div class="mensagens-anteriores">
+                        <a class="btn btn-link center-block" href="#" role="button">
+                            <small><i class="fa fa-long-arrow-up" aria-hidden="true"></i> Mensagens anteriores</small>
+                        </a>
+                    </div>
+                    <div class="cont-message mensagem-enviada">
+                        <p class="mensagem-texto"><?= $mensagem->texto ?></p>
               <span class="owner-image-cont enviado">
                 <img src="src/Assets/images/user.jpg" alt="Nome do dono" class="owner-img img-circle">
               </span>
-                </div>
-                <div class="cont-message mensagem-recebida">
+                    </div>
+                    <div class="cont-message mensagem-recebida">
               <span class="owner-image-cont recebido">
                 <img src="src/Assets/images/owner02.jpg" alt="Nome do dono" class="owner-img img-circle">
               </span>
-                    <p class="mensagem-texto">Oi! Pode vir buscar o item aqui em casa sem problemas. :)</p>
+                        <p class="mensagem-texto">Demorou!</p>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <div class="form-group escrver-msgForm">
-                    <label for="esccreva-textoMsg">Digite sua mensagem</label>
-                    <input type="text" class="form-control" id="esccreva-textoMsg" placeholder="Mensagem...">
-                    <button type="submit" class="btn btn-primary">Enviar</button>
+                <div class="modal-footer">
+                    <div class="form-group escrver-msgForm">
+                        <label for="esccreva-textoMsg">Digite sua mensagem</label>
+                        <input type="text" class="form-control" id="esccreva-textoMsg" placeholder="Mensagem...">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+<?php endforeach; ?>
 
 <!-- jQuery (obrigatório para plugins JavaScript do Bootstrap) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>

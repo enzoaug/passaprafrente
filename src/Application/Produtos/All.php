@@ -13,11 +13,12 @@ use Core\Database\Instructions\Select;
 
 class All extends Database
 {
-    public function getAll()
+    public function getAll($filter = null)
     {
         $select = new Select();
         $select->setEntity("produtos p");
         $select->setFields([
+            "p.id",
             "p.titulo",
             "p.descricao",
             "p.imagem",
@@ -32,7 +33,37 @@ class All extends Database
 
         $query = $select->returnSql();
         $query .= " LEFT JOIN usuarios u ON u.id = p.usuario_id";
+        $query .= " WHERE p.usuario_id != '{$_SESSION["usuario_id"]}'";
+        if (isset($filter) && !empty($filter))
+            $query .= " AND p.titulo LIKE '%{$filter}%' OR p.descricao LIKE '%{$filter}%' OR u.nome LIKE '{$filter}%'";
         $query .= " ORDER BY p.data_publicacao DESC";
+
+        return $query;
+    }
+
+    public function getMeusCompartilhamentos()
+    {
+        $select = new Select();
+        $select->setEntity("produtos p");
+        $select->setFields([
+            "p.id",
+            "p.titulo",
+            "p.descricao",
+            "p.imagem",
+            "p.estado",
+            "p.usuario_id",
+            "p.data_publicacao",
+            "TIMESTAMPDIFF(MINUTE, (p.data_publicacao), now()) AS postdate",
+            "u.nome",
+            "u.sobrenome",
+            "u.foto"
+        ]);
+
+        $query = $select->returnSql();
+        $query .= " LEFT JOIN usuarios u ON u.id = p.usuario_id";
+        $query .= " WHERE p.usuario_id = '{$_SESSION["usuario_id"]}'";
+        $query .= " ORDER BY p.data_publicacao DESC";
+        $query .= " LIMIT 4";
 
         return $query;
     }
@@ -50,6 +81,11 @@ class All extends Database
 
             if ($hora > 24) {
                 $dia = $hora / 24;
+            }
+
+            if ($dia > 30) {
+                $mes = $dia / 30;
+                return "Há " . ceil($mes) . " mês(es)";
             }
 
             return "Há " . ceil($dia) . " dia(s)";

@@ -2,12 +2,19 @@
 /**
  * Created by PhpStorm.
  * User: enzo
- * Date: 03/09/16
- * Time: 22:47
+ * Date: 04/09/16
+ * Time: 21:54
  */
+
+namespace Application;
 
 use Core\Database\Database;
 use Core\Database\Instructions\Insert;
+use Core\Database\Instructions\Select;
+use Core\Database\Instructions\Update;
+use PDO;
+
+session_start();
 
 define("ROOT", $_SERVER["DOCUMENT_ROOT"]);
 define("DS", DIRECTORY_SEPARATOR);
@@ -17,12 +24,9 @@ include ROOT . DS . "passaprafrente" . DS . "vendor" . DS . "autoload.php";
 $conn = new Database();
 $pdo = $conn->connect();
 
-$titulo = filter_input(INPUT_POST, "titulo");
+$imagem = $_FILES["foto"];
+$apelido = filter_input(INPUT_POST, "apelido");
 $descricao = filter_input(INPUT_POST, "descricao");
-$imagem = $_FILES["imagem"];
-$estado = filter_input(INPUT_POST, "estado");
-$usuario_id = filter_input(INPUT_POST, "usuario_id");
-$data_publicacao = filter_input(INPUT_POST, "data_publicacao");
 
 if (!empty($imagem["name"])) {
 
@@ -82,28 +86,30 @@ if (!empty($imagem["name"])) {
     }
 }
 
-$insert = new Insert();
-$insert->setEntity("produtos");
-$insert->setValues([
-    "titulo" => ":titulo",
-    "descricao" => ":descricao",
-    "imagem" => ":imagem",
-    "estado" => ":estado",
-    "usuario_id" => ":usuario_id",
-    "data_publicacao" => ":data_publicacao"
+$update = new Update();
+
+$update->setEntity("usuarios u");
+$update->setValues([
+    "foto" => ":foto",
+    "apelido" => ":apelido",
+    "descricao" => ":descricao"
 ]);
 
-$query = $insert->returnSql();
+$query = $update->returnSql();
+$query .= " WHERE u.id = '{$_SESSION["usuario_id"]}'";
 
-$imagem = $imagem["name"];
+try {
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(":foto", $nomeImagem);
+    $stmt->bindParam(":apelido", $apelido);
+    $stmt->bindParam(":descricao", $descricao);
+} catch (\PDOException $e) {
+    echo "Não foi possível alterar o seu perfil. Entre em contato com os administradores.";
+} finally {
+    if ($stmt->execute()) {
+        header("Location: ../../../index.php?alterarPerfil=ok");
+    } else {
+        header("Location: ../../../index.php?alterarPerfil=nop");
+    }
+}
 
-$stmt = $pdo->prepare($query);
-$stmt->bindParam(":titulo", $titulo);
-$stmt->bindParam(":descricao", $descricao);
-$stmt->bindParam(":imagem", $nomeImagem);
-$stmt->bindParam(":estado", $estado);
-$stmt->bindParam(":usuario_id", $usuario_id);
-$stmt->bindParam(":data_publicacao", $data_publicacao);
-
-if ($stmt->execute())
-    header("Location: ../../../index.php?produto=ok");
