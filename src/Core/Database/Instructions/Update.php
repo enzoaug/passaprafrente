@@ -33,7 +33,7 @@ final class Update extends Instruction
         if (empty($this->entity))
             throw new Exception("Entidade não declarada");
 
-        $sql = "UPDATE $this->entity SET $this->values;";
+        $sql = "UPDATE $this->entity SET $this->values";
         if (!empty($this->filters))
             $sql .= $this->filters->returnSql();
 

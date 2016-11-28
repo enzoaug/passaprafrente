@@ -633,12 +633,7 @@ $user = $selectUser->fetch(PDO::FETCH_OBJ);
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
                         <h2 class="center-block text-success">Opa! Estamos quase lá! :)</h2>
-                        <h3 class="center-block text-info">Sua solicitação do item foi enviada com sucesso. Agora é só
-                            aguardar
-                            a resposta do compartilhador.</h3>
-                        <p class="center-block text-info">Você também pode escrever uma mensagem para o compartilhador
-                            deste
-                            item dizendo o quanto você gostou dele!</p>
+                        <h3 class="center-block text-info">Para finalizar, deixe uma mensagem ao compartilhador do item que tanto lhe interessa!</h3>
                     </div>
                     <div class="modal-footer">
                         <div class="form-group escrver-msgForm">

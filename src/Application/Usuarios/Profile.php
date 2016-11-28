@@ -27,6 +27,7 @@ $pdo = $conn->connect();
 $imagem = $_FILES["foto"];
 $apelido = filter_input(INPUT_POST, "apelido");
 $descricao = filter_input(INPUT_POST, "descricao");
+$userId = $_SESSION["usuario_id"];
 
 if (!empty($imagem["name"])) {
 
@@ -96,7 +97,7 @@ $update->setValues([
 ]);
 
 $query = $update->returnSql();
-$query .= " WHERE u.id = '{$_SESSION["usuario_id"]}'";
+$query .= " WHERE u.id = '{$userId}'";
 
 try {
     $stmt = $pdo->prepare($query);
