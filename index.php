@@ -137,7 +137,7 @@ $user = $selectUser->fetch(PDO::FETCH_OBJ);
             <?php foreach ($produtos as $produto) : ?>
                 <li class="listagem">
                     <div class="ident-info">
-                        <a href="#"><img src="src/Assets/images/owner01.jpg" class="img-compart img-circle"></a>
+                        <a href="#"><img src="src/Assets/images/<?= $produto->foto ?>" class="img-compart img-circle"></a>
                         <div class="info-name-date">
                             <a href="#"><h3 class="nome-compart"><?= $produto->nome ?> <?= $produto->sobrenome ?></h3>
                             </a>
